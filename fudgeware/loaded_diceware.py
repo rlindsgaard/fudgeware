@@ -5,6 +5,8 @@ import hashlib
 import pyperclip
 import sys
 
+from fudgeware.dice import DiceContainer, WeightedDie
+
 # TODO: Obtain wordlists from eff.org and compare with hash
 # on first use.
 builtin_wordlists = {
@@ -114,40 +116,6 @@ class Wordlist(object):
     def from_roll(self, roll):
         roll_str = ''.join(map(str, roll))
         return self.wordlist[roll_str]
-
-
-class DiceContainer(object):
-    def __init__(self, dice=None):
-        self.dice = dice or []
-
-    def add(self, die):
-        self.dice.append(die)
-
-    def roll(self):
-        for die in self.dice:
-            die.roll()
-        return self.eyes()
-
-    def eyes(self):
-        return [
-            d.eyes()
-            for d in self.dice
-        ]
-
-
-class WeightedDie(object):
-    def __init__(self, seed, hashing_algorithm):
-        cipher = hashlib.new(hashing_algorithm)
-        cipher.update(seed)
-        self.cipher = cipher
-
-    def roll(self):
-        self.cipher.update(self.cipher.digest())
-        return self.eyes()
-
-    def eyes(self):
-        intdigest = int.from_bytes(self.cipher.digest(), 'big')
-        return (intdigest % 6) + 1
 
 
 if __name__ == '__main__':
