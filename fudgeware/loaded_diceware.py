@@ -7,24 +7,8 @@ import pyperclip
 import sys
 
 from fudgeware.dice import DiceContainer, WeightedDie
+from fudgeware.wordlist import builtin_wordlists, Wordlist
 
-here = os.path.dirname(os.path.abspath(__file__))
-# TODO: Obtain wordlists from eff.org and compare with hash
-# on first use.
-builtin_wordlists = {
-    'long': {
-        'dice': 5,
-        'source': os.path.join(here, 'eff_large_wordlist.txt'),
-    },
-    'short': {
-        'dice': 4,
-        'source': os.path.join(here, 'eff_short_wordlist_1.txt'),
-    },
-    'short-prefix': {
-        'dice': 4,
-        'source': os.path.join(here, 'eff_short_wordlist_2_0.txt'),
-    }
-}
 MASTER_SALT = b'correct horse battery staple'
 
 
@@ -102,22 +86,6 @@ class SeedGenerator(object):
         d = self.generator.digest()
         self.update(d)
         return d
-
-
-class Wordlist(object):
-    def __init__(self, filename):
-        self.wordlist = {}
-        self.read_file(filename)
-
-    def read_file(self, filename):
-        with open(filename, mode='r') as f:
-            for line in f:
-                key, word = line.split()
-                self.wordlist[key] = word
-
-    def from_roll(self, roll):
-        roll_str = ''.join(map(str, roll))
-        return self.wordlist[roll_str]
 
 
 if __name__ == '__main__':
