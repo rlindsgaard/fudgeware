@@ -1,4 +1,5 @@
 """Main module."""
+import os.path
 from argparse import ArgumentParser
 import getpass
 import hashlib
@@ -7,20 +8,21 @@ import sys
 
 from fudgeware.dice import DiceContainer, WeightedDie
 
+here = os.path.dirname(os.path.abspath(__file__))
 # TODO: Obtain wordlists from eff.org and compare with hash
 # on first use.
 builtin_wordlists = {
     'long': {
         'dice': 5,
-        'source': 'eff_large_wordlist.txt',
+        'source': os.path.join(here, 'eff_large_wordlist.txt'),
     },
     'short': {
         'dice': 4,
-        'source': 'eff_short_wordlist_1.txt',
+        'source': os.path.join(here, 'eff_short_wordlist_1.txt'),
     },
     'short-prefix': {
         'dice': 4,
-        'source': 'eff_short_wordlist_2_0.txt',
+        'source': os.path.join(here, 'eff_short_wordlist_2_0.txt'),
     }
 }
 MASTER_SALT = b'correct horse battery staple'
