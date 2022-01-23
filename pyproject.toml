@@ -4,6 +4,16 @@ version = "0.0.1"
 description = "Create and manage diceware passwords with hash-based dice rolls"
 authors = ["Ronni Elken Lindsgaard <ronni.lindsgaard@gmail.com>"]
 license = "MIT"
+readme = "README.rst"
+repository = "https://github.com/rlindsgaard/fudgeware"
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Security :: Cryptography",
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -12,6 +22,9 @@ python = "^3.9"
 pytest = "^6.2.5"
 tox = "^3.24.5"
 Sphinx = "^4.4.0"
+
+[tool.poetry.scripts]
+fudge = "fudgeware.cli:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
