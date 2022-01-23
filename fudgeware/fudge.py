@@ -1,5 +1,4 @@
 """Main module."""
-import os.path
 from argparse import ArgumentParser
 import getpass
 import hashlib
@@ -14,35 +13,15 @@ MASTER_SALT = b'correct horse battery staple'
 
 def main(opts):
     seed_generator = initialise_seed(opts.domain.encode())
-    container = DiceContainer()
 
     wordlist_config = builtin_wordlists[opts.wordlist]
 
-    for _ in range(wordlist_config['dice']):
-        seed = seed_generator.digest()
-        seed_generator.update(seed)
-
-        die = WeightedDie(seed, 'sha512_256')
-        container.add(die)
-
     wordlist = Wordlist(wordlist_config['source'])
+    container = load_dice(seed_generator, wordlist_config['dice'])
 
-    words = [
-        wordlist.from_roll(container.roll())
-        for _ in range(opts.words)
-    ]
+    passphrase = generate_passphrase(wordlist, container, opts.words)
 
-    passphrase = ' '.join(words)
-
-    try:
-        pyperclip.copy(passphrase)
-        print('Passphrase copied to clipboard')
-    except pyperclip.PyperclipException:
-        print('Could not copy passphrase to clipboard')
-        query = input('Print to terminal? (type "yes") ')
-        if query != 'yes':
-            sys.exit(1)
-        print(passphrase)
+    copy_to_clipboard(passphrase)
 
 
 def initialise_seed(domain):
@@ -75,6 +54,8 @@ def initialise_seed(domain):
 
 
 class SeedGenerator(object):
+    """Wrapper serving as a random number generator."""
+
     def __init__(self, seed):
         self.generator = hashlib.new('sha512_256')
         self.generator.update(seed)
@@ -86,6 +67,43 @@ class SeedGenerator(object):
         d = self.generator.digest()
         self.update(d)
         return d
+
+
+def load_dice(rng, number_of_dice):
+    """Initialize container of loaded dice."""
+    container = DiceContainer()
+    for _ in range(number_of_dice):
+        seed = rng.digest()
+        rng.update(seed)
+
+        die = WeightedDie(seed, 'sha512_256')
+        container.add(die)
+
+    return container
+
+
+def generate_passphrase(
+    wordlist: Wordlist,
+    container: DiceContainer,
+    number_of_words: int):
+    words = [
+        wordlist.from_roll(container.roll())
+        for _ in range(number_of_words)
+    ]
+
+    return ' '.join(words)
+
+
+def copy_to_clipboard(passphrase):
+    try:
+        pyperclip.copy(passphrase)
+        print('Passphrase copied to clipboard')
+    except pyperclip.PyperclipException:
+        print('Could not copy passphrase to clipboard')
+        query = input('Print to terminal? (type "yes") ')
+        if query != 'yes':
+            sys.exit(1)
+        print(passphrase)
 
 
 if __name__ == '__main__':
